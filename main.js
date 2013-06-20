@@ -6,12 +6,12 @@ $(document).ready(function() {
 Game = function(width, height)
 {
     gameField = new Field(width, height);
-    ball = new Ball(100, 100, 10);
+    grav = 10;
+    ball = new Ball(100, 600, 10);
 
     this.start = function()
     {
         setInterval(update, 20);
-        //this.draw();
     }
 
     function update()
@@ -22,29 +22,25 @@ Game = function(width, height)
     function Ball(x, y, radius)
     {
         this.position = $V([x,y]);
-        this.speed = $V([0,0]);
+        this.speed = $V([50,0]);
         this.radius = radius;
-        this.ro=0.1;
+        this.ro = 1;
         this.mass = Math.PI * this.radius * this.radius * this.ro;
         this.circle = gameField.paper.circle(this.position.e(1), this.position.e(2), this.radius);
-        this.gravity = $V([0,8]);
+        this.gravity = $V([0, grav]);
 
-        this.update = function(paper)
+        this.update = function()
         {
-            // this.speed = $V([0,0]);
-            this.speed = this.speed.multiply(0.85);
-            this.gravity = this.gravity.add($V([0,1]));
-            this.speed = this.speed.add(this.gravity);
-            this.speed = this.speed.multiply(1/this.mass);
-            if(this.position.e(2) >= gameField.realHeight)
+            if(this.position.e(2) >= gameField.realHeight - this.radius)
             {
-                this.speed = this.speed.multiply(-1);
-                this.gravity = $V([0,0])
+                this.speed = $V([this.speed.e(1) * 0.99, this.speed.e(2) * -0.6]);
+                this.position = $V([this.position.e(1), gameField.realHeight - this.radius]);
             }
-            console.log(this.speed.modulus());
-            this.position = this.position.add(this.speed);
+            this.speed = this.speed.add(this.gravity);
+            this.position = this.position.add(this.speed.multiply(1/50));
             this.circle.attr('cx', this.position.e(1));
             this.circle.attr('cy', this.position.e(2));
+            console.log(this.speed.modulus());
         }
     }
 }
